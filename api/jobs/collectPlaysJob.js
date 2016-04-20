@@ -9,7 +9,7 @@ module.exports = function(agenda) {
         //disabled: false,
 
         // method can be 'every <interval>', 'schedule <when>' or now
-        frequency: 'every 5 seconds',
+        frequency: 'every 1 hour',
 
         // Jobs options
         //options: {
@@ -23,10 +23,10 @@ module.exports = function(agenda) {
         // execute job
         run: function(job, done) {
             console.log("Collecting players");
-            ScoreService.getTopPlayers(5, 154, function(players) {
-                console.log("received players")
-                //console.log(players)
-            })
+            ScoreService.getTopPlayers(1, 50, function(players) {
+                console.log("Received players:");
+                console.log(players);
+            });
 
             done();
         },

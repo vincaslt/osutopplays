@@ -1,3 +1,5 @@
+var jsdom = require('jsdom');
+
 module.exports = {
 
     getTopPlayers: function(from, to, callback) {
@@ -22,29 +24,32 @@ module.exports = {
                     }
                 })
             }
-        })
+        });
 
         promise.then(callback);
     },
 
     getPlayersFromPage: function(page, callback) {
+        var url = UtilService.urlAssembler('https://osu.ppy.sh/p/pp/')
+                                .param({m: 0, s: 3, o: 1, page: page})
+                                .toString();
         var promise = new Promise(function(resolve, reject) {
-            //TODO find players from osu site
-
-            //TESTING
             var players = [];
-            for (var i = (1 + (page - 1) * 50); i <= (50 + (page - 1) * 50); i++) {
-                var player = {
-                    name: "player" + 1,
-                    rank: i
-                };
-
-                players.push(player);
-            }
-            //---
-            
-            resolve(players);
-        })
+            jsdom.env(url, ["http://code.jquery.com/jquery.js"],
+                function (err, window) {
+                    var rows = window.$('.beatmapListing .row1p, .beatmapListing .row2p');
+                    rows.each(function() {
+                        var player = {
+                            name: window.$(this).find('a').html(),
+                            rank: Number(window.$(this).find('b').html().replace('#', ''))
+                        };
+                        if (players.push(player) >= 50) {
+                            resolve(players);
+                        }
+                    });
+                }
+            );
+        });
 
         promise.then(callback);
     }
