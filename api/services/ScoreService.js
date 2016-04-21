@@ -52,6 +52,19 @@ module.exports = {
         });
 
         promise.then(callback);
+    },
+
+    getPlayerScores: function(username, callback) {
+        var args = {
+            parameters: {
+                k: sails.config.apiKey,
+                u: username
+            }
+        }
+
+        UtilService.restClient.methods.getUserBest(args, function (data, response) {
+            callback(data);
+        });
     }
 
 };
