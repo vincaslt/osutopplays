@@ -62,6 +62,10 @@ module.exports = {
         promise.then(callback);
     },
 
+    getHighScores: function(min, max, cb) {
+        HighScore.find({skip: min, limit: max, sort: 'pp DESC'}).exec(cb);
+    },
+
     /*
         identified - username or ID
     */
@@ -80,6 +84,8 @@ module.exports = {
 
     /*
         Saves [min, max] ranked top players to database
+
+        TODO refactor this
     */
     collectTopPlayers: function(min, max, cb, includeScores = true) {
         function onSuccess(i, total, player) {

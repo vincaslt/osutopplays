@@ -16,6 +16,7 @@ Currently implemented:
     `apiKey: "123456789abcdef" // Your api key instead of 123...`
 3. Run:
     ```
+    npm install -g babel-cli
     npm install
     sails lift
     ```
