@@ -22,7 +22,7 @@ module.exports = function(agenda) {
 
         // execute job
         run: function(job, done) {
-            ScoreService.collectTopPlayers(1, 50, done);
+            ScoreService.collectTopPlayers(1, 2000, done);
         },
     };
     return job;

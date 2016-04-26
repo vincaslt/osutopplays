@@ -1,13 +1,15 @@
 var jsdom = require('jsdom');
-var urlAssembler = require('url-assembler');
-var nodeRestClient = require('node-rest-client').Client;
+var qs = require('query-string');
+var request = require('request');
+var throttledRequest = require('throttled-request')(request);
 
-var restClient = new nodeRestClient();
-
-restClient.registerMethod("getUserBest", "https://osu.ppy.sh/api/get_user_best", "GET");
+throttledRequest.configure({
+    requests: 5,
+    milliseconds: 1000
+});
 
 module.exports = {
     jsdom: jsdom,
-    urlAssembler: urlAssembler,
-    restClient: restClient
+    throttledRequest: throttledRequest,
+    qs: qs
 }

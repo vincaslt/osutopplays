@@ -1,5 +1,3 @@
-var jsdom = require('jsdom');
-
 module.exports = {
 
     getTopPlayers: function(from, to, callback) {
@@ -9,20 +7,23 @@ module.exports = {
             var minPage = 1 + Math.floor((from - 1) / 50);
             var pagesLeft = 1 + maxPage - minPage;
             for (var page = minPage; page <= maxPage; page++) {
-                ScoreService.getPlayersFromPage(page, function(players) {
-                    players.forEach(function(player) {
-                        if (player.rank >= from && player.rank <= to) {
-                            topPlayers.push(player);
+                setTimeout((function(page) {
+                    ScoreService.getPlayersFromPage(page, function(players) {
+                        players.forEach(function(player) {
+                            if (player.rank >= from && player.rank <= to) {
+                                topPlayers.push(player);
+                            }
+                        });
+                        console.log('Pages left ' + pagesLeft);
+                        if (--pagesLeft <= 0) {
+                            console.log('done!');
+                            var sortedPlayers = topPlayers.sort(function(a, b) {
+                                return a.rank - b.rank;
+                            });
+                            resolve(sortedPlayers);
                         }
                     });
-
-                    if (--pagesLeft <= 0) {
-                        var sortedPlayers = topPlayers.sort(function(a, b) {
-                            return a.rank - b.rank;
-                        });
-                        resolve(sortedPlayers);
-                    }
-                })
+                }).bind(this, page), page * 250);
             }
         });
 
@@ -36,12 +37,10 @@ module.exports = {
         }
     */
     getPlayersFromPage: function(page, callback) {
-        var url = UtilService.urlAssembler('https://osu.ppy.sh/p/pp/')
-                                .param({m: 0, s: 3, o: 1, page: page})
-                                .toString();
         var promise = new Promise(function(resolve, reject) {
+            var url = 'https://osu.ppy.sh/p/pp/?' + UtilService.qs.stringify({m: 0, s: 3, o: 1, page: page});
             var players = [];
-            jsdom.env(url, ["http://code.jquery.com/jquery.js"],
+            UtilService.jsdom.env(url, ["http://code.jquery.com/jquery.js"],
                 function (err, window) {
                     var rows = window.$('.beatmapListing .row1p, .beatmapListing .row2p');
                     rows.each(function() {
@@ -51,7 +50,8 @@ module.exports = {
                             name: playerLink.html(),
                             rank: Number(window.$(this).find('b').html().replace('#', ''))
                         };
-                        if (players.push(player) >= 50) {
+                        var l = players.push(player);
+                        if (l >= 50) {
                             resolve(players);
                         }
                     });
@@ -63,22 +63,22 @@ module.exports = {
     },
 
     getHighScores: function(min, max, cb) {
-        HighScore.find({skip: min, limit: max, sort: 'pp DESC'}).exec(cb);
+        HighScore.find({skip: min, limit: max, sort: 'pp DESC'}).populate('player').exec(cb);
     },
 
     /*
         identified - username or ID
     */
     getPlayerScores: function(identifier, callback) {
-        var args = {
-            parameters: {
+        UtilService.throttledRequest({
+            url: 'https://osu.ppy.sh/api/get_user_best',
+            qs: {
                 k: sails.config.apiKey,
                 u: identifier
-            }
-        }
-
-        UtilService.restClient.methods.getUserBest(args, function (data, response) {
-            callback(data);
+            },
+            json: true
+        }, function (err, response, scores) {
+            callback(scores);
         });
     },
 
@@ -98,10 +98,9 @@ module.exports = {
 
         console.log("Collecting players...");
         ScoreService.getTopPlayers(min, max, function(players) {
-        console.log("Received players from osu API... Saving players...");
+            console.log("Received " + players.length + " players from osu API... Saving players...");
             var i = 1;
             players.forEach(function(player) {
-                //console.log(player);
                 Player.create({
                     id: player.id,
                     name: player.name,

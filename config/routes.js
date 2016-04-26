@@ -36,6 +36,8 @@ module.exports.routes = {
   //   view: 'index'
   // }
 
+  'get /highScores': 'ScoreController.highScores',
+
   '/*': function(req, res, next) {
             if (req.path.match(/\..*/g)) {
                 return next();
