@@ -4,7 +4,7 @@ var request = require('request');
 var throttledRequest = require('throttled-request')(request);
 
 throttledRequest.configure({
-    requests: 5,
+    requests: sails.config.application.apiInterval,
     milliseconds: 1000
 });
 

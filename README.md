@@ -1,4 +1,4 @@
-# osufreepp
+# osutopplays
 
 #Information
 

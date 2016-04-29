@@ -6,6 +6,7 @@ module.exports = {
             var maxPage = 1 + Math.floor((to - 1) / 50);
             var minPage = 1 + Math.floor((from - 1) / 50);
             var pagesLeft = 1 + maxPage - minPage;
+            console.log('Pages left ' + pagesLeft);
             for (var page = minPage; page <= maxPage; page++) {
                 setTimeout((function(page) {
                     ScoreService.getPlayersFromPage(page, function(players) {
@@ -14,16 +15,18 @@ module.exports = {
                                 topPlayers.push(player);
                             }
                         });
-                        console.log('Pages left ' + pagesLeft);
+
                         if (--pagesLeft <= 0) {
                             console.log('done!');
                             var sortedPlayers = topPlayers.sort(function(a, b) {
                                 return a.rank - b.rank;
                             });
                             resolve(sortedPlayers);
+                        } else {
+                            console.log('Pages left ' + pagesLeft);
                         }
                     });
-                }).bind(this, page), page * 250);
+                }).bind(this, page), page * sails.config.application.parseInterval);
             }
         });
 
@@ -107,7 +110,7 @@ module.exports = {
                     rank: player.rank
                 }).exec(function(err, createdPlayer) {
                     if (includeScores) {
-                        ScoreService.getPlayerScores(createdPlayer.name, function(scores) {
+                        ScoreService.getPlayerScores(createdPlayer.id, function(scores) {
                             var j = 0;
                             scores.forEach(function(score) {
                                 //TODO update existing scores and error handling
