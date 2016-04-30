@@ -104,7 +104,7 @@ module.exports = {
             console.log("Received " + players.length + " players from osu API... Saving players...");
             var i = 1;
             players.forEach(function(player) {
-                Player.create({
+                Player.findOrCreate({id: player.id}, {
                     id: player.id,
                     name: player.name,
                     rank: player.rank
@@ -113,13 +113,12 @@ module.exports = {
                         ScoreService.getPlayerScores(createdPlayer.id, function(scores) {
                             var j = 0;
                             scores.forEach(function(score) {
-                                //TODO update existing scores and error handling
-                                HighScore.create({
-                                    beatmapId: score.beatmap_id,
-                                    score: score.score,
-                                    pp: score.pp,
-                                    player: createdPlayer
-                                }).exec(function(err, createdScore) {
+                                HighScore.updateOrCreate(
+                                    score.beatmap_id,
+                                    score.score,
+                                    score.pp,
+                                    createdPlayer
+                                ).then(function(err, createdScore) {
                                     j++;
                                     if (j >= scores.length) {
                                         onSuccess(i, players.length, createdPlayer);
