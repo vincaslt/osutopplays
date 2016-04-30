@@ -66,7 +66,7 @@ module.exports = {
     },
 
     getHighScores: function(min, max, cb) {
-        HighScore.find({skip: min, limit: max, sort: 'pp DESC'}).populate('player').exec(cb);
+        HighScore.find({skip: min, limit: max, sort: 'pp DESC'}).populate('player').populate('beatmap').exec(cb);
     },
 
     /*
@@ -77,7 +77,8 @@ module.exports = {
             url: 'https://osu.ppy.sh/api/get_user_best',
             qs: {
                 k: sails.config.apiKey,
-                u: identifier
+                u: identifier,
+                limit: 100
             },
             json: true
         }, function (err, response, scores) {
@@ -101,7 +102,7 @@ module.exports = {
 
         console.log("Collecting players...");
         ScoreService.getTopPlayers(min, max, function(players) {
-            console.log("Received " + players.length + " players from osu API... Saving players...");
+            console.log("Received " + players.length + " players from osu scoreboard... Saving players...");
             var i = 1;
             players.forEach(function(player) {
                 Player.findOrCreate({id: player.id}, {
@@ -117,8 +118,9 @@ module.exports = {
                                     score.beatmap_id,
                                     score.score,
                                     score.pp,
-                                    createdPlayer
-                                ).then(function(err, createdScore) {
+                                    score.enabled_mods,
+                                    createdPlayer,
+                                function(createdScore) {
                                     j++;
                                     if (j >= scores.length) {
                                         onSuccess(i, players.length, createdPlayer);

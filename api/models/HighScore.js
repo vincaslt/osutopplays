@@ -1,32 +1,51 @@
 module.exports = {
     attributes: {
         beatmapId: {
-            type: 'integer'
+            type: 'integer',
+            required: true
         },
         score: {
-            type: 'integer'
+            type: 'integer',
+            required: true
         },
         pp: {
-            type: 'float'
+            type: 'float',
+            required: true
+        },
+        enabledMods: {
+            type: 'integer',
+            required: true
         },
         player: {
-            model: 'player'
+            model: 'player',
+            required: true
+        },
+        beatmap: {
+            model: 'beatmap'
         }
     },
 
-    updateOrCreate: function (beatmapId, score, pp, player) {
-        return HighScore.update(
-            {beatmapId: beatmapId, player: player},
-            {pp: pp, score: score}
-        ).then(function(data) {
-            if(data.length === 0){
-                return HighScore.create({
-                    beatmapId: beatmapId,
-                    score: score,
-                    pp: pp,
-                    player: player
+    updateOrCreate: function (beatmapId, score, pp, enabledMods, player, callback) {
+        HighScore.update(
+            {beatmapId: beatmapId, player: player.id},
+            {pp: pp, score: score, enabledMods: enabledMods}
+        ).then(function(foundScore) {
+            if(foundScore.length == 0) {
+                BeatmapService.getBeatmap(beatmapId, function(beatmap) {
+                    HighScore.create({
+                        beatmapId: beatmapId,
+                        score: score,
+                        pp: pp,
+                        enabledMods: enabledMods,
+                        player: player,
+                        beatmap: beatmap
+                    }, function(err, createdScore) {
+                        callback(createdScore);
+                    });
                 });
+            } else {
+                callback(foundScore[0]);
             }
         });
-      }
+    }
 }

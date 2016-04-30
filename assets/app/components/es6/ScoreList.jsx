@@ -4,7 +4,8 @@ import axios from 'axios'
 
 class Score extends React.Component {
     render() {
-        return <li>{this.props.data.beatmapId}: <b>{this.props.data.player.name}</b>: {this.props.data.pp}</li>
+        var data = this.props.data
+        return <li><b>{data.player.name}</b>: {data.beatmap.title} [{data.beatmap.version}] - {data.pp}</li>
     }
 }
 

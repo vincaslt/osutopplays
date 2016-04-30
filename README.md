@@ -2,12 +2,13 @@
 
 #Information
 
-Application which lists 100(?) most PP osu scores.
+Application which lists top osu scores by pp
 
 Currently implemented:
 
 * Parsing of top players from osu website
 * Collecting top scores from osu API
+* Collecting relevant beatmap info
 
 #Usage:
 
