@@ -7,6 +7,13 @@ export default class Score extends React.Component {
 
     render() {
         var info = this.props.info
-        return <li><b>{info.player.name}</b>: {info.beatmap.title} [{info.beatmap.version}] - {info.pp}</li>
+        return (
+            <tr>
+                <td>{this.props.ranking}</td>
+                <td>{info.player.name}</td>
+                <td>{info.beatmap.title} [{info.beatmap.version}]</td>
+                <td>{info.pp}</td>
+            </tr>
+        )
     }
 }
