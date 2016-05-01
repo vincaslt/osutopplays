@@ -6,24 +6,24 @@ module.exports = {
             var maxPage = 1 + Math.floor((to - 1) / 50);
             var minPage = 1 + Math.floor((from - 1) / 50);
             var pagesLeft = 1 + maxPage - minPage;
-            console.log('Pages left ' + pagesLeft);
+            sails.log('Pages left ' + pagesLeft);
             for (var page = minPage; page <= maxPage; page++) {
                 setTimeout((function(page) {
                     ScoreService.getPlayersFromPage(page, function(players) {
                         players.forEach(function(player) {
-                            if (player.rank >= from && player.rank <= to) {
+                            if (player.pp_rank >= from && player.pp_rank <= to) {
                                 topPlayers.push(player);
                             }
                         });
 
                         if (--pagesLeft <= 0) {
-                            console.log('done!');
+                            sails.log('done!');
                             var sortedPlayers = topPlayers.sort(function(a, b) {
-                                return a.rank - b.rank;
+                                return a.pp_rank - b.pp_rank;
                             });
                             resolve(sortedPlayers);
                         } else {
-                            console.log('Pages left ' + pagesLeft);
+                            sails.log('Pages left ' + pagesLeft);
                         }
                     });
                 }).bind(this, page), page * sails.config.application.parseInterval);
@@ -47,16 +47,13 @@ module.exports = {
                 function (err, window) {
                     var rows = window.$('.beatmapListing .row1p, .beatmapListing .row2p');
                     rows.each(function() {
-                        var playerLink = window.$(this).find('a');
-                        var player = {
-                            id: Number(playerLink.attr('href').slice(3)),
-                            name: playerLink.html(),
-                            rank: Number(window.$(this).find('b').html().replace('#', ''))
-                        };
-                        var l = players.push(player);
-                        if (l >= 50) {
-                            resolve(players);
-                        }
+                        //TODO rework to a batch query
+                        var playerId = Number(window.$(this).find('a').attr('href').slice(3));
+                        PlayerService.getPlayerInfo(playerId, function(player) {
+                            if (players.push(player) >= 50) {
+                                resolve(players);
+                            }
+                        });
                     });
                 }
             );
@@ -93,23 +90,26 @@ module.exports = {
     */
     collectTopPlayers: function(min, max, cb, includeScores = true) {
         function onSuccess(i, total, player) {
-            console.log(i + "/" + total + " " + player.name + " includeScores = " + includeScores);
+            sails.log(i + "/" + total + " " + player.name + " includeScores = " + includeScores);
             if (i >= total) {
-                console.log("Received scores... Done.");
+                sails.log("Received scores... Done.");
                 cb();
             }
         }
 
-        console.log("Collecting players...");
+        sails.log("Collecting players...");
         ScoreService.getTopPlayers(min, max, function(players) {
-            console.log("Received " + players.length + " players from osu scoreboard... Saving players...");
+            sails.log("Received " + players.length + " players from osu API... Saving players...");
             var i = 1;
             players.forEach(function(player) {
-                Player.findOrCreate({id: player.id}, {
-                    id: player.id,
-                    name: player.name,
-                    rank: player.rank
-                }).exec(function(err, createdPlayer) {
+                Player.updateOrCreate({
+                    id: player.user_id,
+                    name: player.username,
+                    rank: player.pp_rank,
+                    countryRank: player.pp_country_rank,
+                    pp: player.pp_raw,
+                    country: player.country
+                }, function(createdPlayer) {
                     if (includeScores) {
                         ScoreService.getPlayerScores(createdPlayer.id, function(scores) {
                             var j = 0;
@@ -121,6 +121,10 @@ module.exports = {
                                     enabledMods: score.enabled_mods,
                                     maxCombo: score.maxcombo,
                                     rank: score.rank,
+                                    count50: score.count50,
+                                    count100: score.count100,
+                                    count300: score.count300,
+                                    countMiss: score.countmiss,
                                     player: createdPlayer
                                 },
                                 function(createdScore) {

@@ -37,16 +37,25 @@ body {
 
 /* Scoreboard tooltip styles */
 
-.info-popover .beatmap-bg {
+.beatmap-popover .beatmap-bg {
     float: left;
     height: 80px;
     width: auto;
     margin-right: 5px;
 }
 
-.rank-icon {
-    height: 40px;
+.player-popover .profile-image {
+    float: left;
+    height: 96px;
     width: auto;
+    margin-right: 5px;
+}
+
+.score-popover .rank-icon {
+    float: left;
+    height: 65px;
+    width: auto;
+    margin-right: 5px;
 }
 
 /* Popover overrides */
@@ -57,11 +66,15 @@ body {
 }
 
 .popover-title {
-    min-width: 330px;
+    min-width: 335px;
+}
+
+.popover-content {
+    min-width: 250px;
 }
 
 .popover h4 {
-    margin: 0px;
+    margin: 0 0 5px 0;
 }
 
 /* General */
