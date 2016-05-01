@@ -8,8 +8,8 @@ export default React.createClass({
         return (
             <div>
                 <div className="container">
-                    <PageHeader>Osu top plays:</PageHeader>
-                    <ScoreList></ScoreList>
+                    <PageHeader>Osu Top Plays</PageHeader>
+                    <ScoreList/>
                 </div>
                 <footer className="footer">
                     <div className="container">

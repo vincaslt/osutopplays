@@ -6,7 +6,7 @@ import { Table } from 'react-bootstrap'
 
 class ScoreList extends React.Component {
     render() {
-        var ranking = 1;
+        var ranking = 1
         var scoreNodes = this.props.scores.map(function(score) {
             return <Score ranking={ranking++} key={score.id} info={score}/>
         })

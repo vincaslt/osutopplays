@@ -18,11 +18,54 @@ body {
 }
 
 .container .text-muted {
-  margin: 20px 0;
+    margin: 20px 0;
 }
 
 /* Scoreboard styles */
 
 .scoreboard {
     font-size: 16px;
+}
+
+.scoreboard a {
+    text-decoration: none !important;
+}
+
+.scoreboard a:hover, .scoreboard a:focus {
+    text-decoration: underline !important;
+}
+
+/* Scoreboard tooltip styles */
+
+.info-popover .beatmap-bg {
+    float: left;
+    height: 80px;
+    width: auto;
+    margin-right: 5px;
+}
+
+.rank-icon {
+    height: 40px;
+    width: auto;
+}
+
+/* Popover overrides */
+
+.popover {
+    max-width: none;
+    width:auto!important;
+}
+
+.popover-title {
+    min-width: 330px;
+}
+
+.popover h4 {
+    margin: 0px;
+}
+
+/* General */
+
+.clear-both {
+    clear: both;
 }
