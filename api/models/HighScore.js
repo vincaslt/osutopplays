@@ -16,6 +16,14 @@ module.exports = {
             type: 'integer',
             required: true
         },
+        maxCombo: {
+            type: 'integer',
+            required: true
+        },
+        rank: {
+            type: 'string',
+            required: true
+        },
         player: {
             model: 'player',
             required: true
@@ -25,21 +33,21 @@ module.exports = {
         }
     },
 
-    updateOrCreate: function (beatmapId, score, pp, enabledMods, player, callback) {
+    updateOrCreate: function (highscore, callback) {
         HighScore.update(
-            {beatmapId: beatmapId, player: player.id},
-            {pp: pp, score: score, enabledMods: enabledMods}
+            {beatmapId: highscore.beatmapId, player: highscore.player.id},
+            {
+                pp: highscore.pp,
+                score: highscore.score,
+                enabledMods: highscore.enabledMods,
+                maxCombo: highscore.maxCombo,
+                rank: highscore.rank
+            }
         ).then(function(foundScore) {
             if(foundScore.length == 0) {
-                BeatmapService.getBeatmap(beatmapId, function(beatmap) {
-                    HighScore.create({
-                        beatmapId: beatmapId,
-                        score: score,
-                        pp: pp,
-                        enabledMods: enabledMods,
-                        player: player,
-                        beatmap: beatmap
-                    }, function(err, createdScore) {
+                BeatmapService.getBeatmap(highscore.beatmapId, function(beatmap) {
+                    highscore.beatmap = beatmap;
+                    HighScore.create(highscore, function(err, createdScore) {
                         callback(createdScore);
                     });
                 });

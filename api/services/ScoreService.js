@@ -114,12 +114,15 @@ module.exports = {
                         ScoreService.getPlayerScores(createdPlayer.id, function(scores) {
                             var j = 0;
                             scores.forEach(function(score) {
-                                HighScore.updateOrCreate(
-                                    score.beatmap_id,
-                                    score.score,
-                                    score.pp,
-                                    score.enabled_mods,
-                                    createdPlayer,
+                                HighScore.updateOrCreate({
+                                    beatmapId: score.beatmap_id,
+                                    score: score.score,
+                                    pp: score.pp,
+                                    enabledMods: score.enabled_mods,
+                                    maxCombo: score.maxcombo,
+                                    rank: score.rank,
+                                    player: createdPlayer
+                                },
                                 function(createdScore) {
                                     j++;
                                     if (j >= scores.length) {

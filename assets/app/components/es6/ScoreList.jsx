@@ -1,18 +1,12 @@
 import React from 'react'
 import { resolve } from "react-resolver";
 import axios from 'axios'
-
-class Score extends React.Component {
-    render() {
-        var data = this.props.data
-        return <li><b>{data.player.name}</b>: {data.beatmap.title} [{data.beatmap.version}] - {data.pp}</li>
-    }
-}
+import Score from './Score.jsx'
 
 class ScoreList extends React.Component {
     render() {
         var scoreNodes = this.props.scores.map(function(score) {
-            return <Score key={score.id} data={score}/>
+            return <Score key={score.id} info={score}/>
         })
 
         return (
